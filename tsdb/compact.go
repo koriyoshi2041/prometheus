@@ -91,6 +91,8 @@ type LeveledCompactor struct {
 	postingsDecoderFactory      PostingsDecoderFactory
 	enableOverlappingCompaction bool
 	enableNativeMetadata        bool
+	indexedResourceAttrs        map[string]struct{}
+	enableResourceAttrIndex     bool
 }
 
 type CompactorMetrics struct {
@@ -185,6 +187,12 @@ type LeveledCompactorOptions struct {
 	UseUncachedIO bool
 	// EnableNativeMetadata enables persistence of OTel resource attributes during compaction.
 	EnableNativeMetadata bool
+	// IndexedResourceAttrs specifies additional descriptive resource attribute
+	// names to include in the inverted index beyond identifying attributes.
+	IndexedResourceAttrs map[string]struct{}
+	// EnableResourceAttrIndex enables the resource attribute inverted index
+	// in compacted Parquet files.
+	EnableResourceAttrIndex bool
 }
 
 type PostingsDecoderFactory func(meta *BlockMeta) index.PostingsDecoder
@@ -241,6 +249,8 @@ func NewLeveledCompactorWithOptions(ctx context.Context, r prometheus.Registerer
 		enableOverlappingCompaction: opts.EnableOverlappingCompaction,
 		blockExcludeFunc:            opts.BlockExcludeFilter,
 		enableNativeMetadata:        opts.EnableNativeMetadata,
+		indexedResourceAttrs:        opts.IndexedResourceAttrs,
+		enableResourceAttrIndex:     opts.EnableResourceAttrIndex,
 	}, nil
 }
 
